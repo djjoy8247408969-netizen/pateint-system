@@ -1,0 +1,131 @@
+def demonstrate_rotations():
+    """Test function to demonstrate left and right rotations"""
+    tree = AVLTree()
+    
+    print("=== Testing AVL Tree Rotations ===")
+
+    print("\n1. Creating left-heavy tree for RIGHT rotation:")
+    patients_right = [
+        Patient(30, "Patient30", False, ["Fever"]),
+        Patient(20, "Patient20", True, ["Cold"]),
+        Patient(10, "Patient10", False, ["Flu"])
+    ]
+    
+    for patient in patients_right:
+        tree.add_patient(patient)
+        print(f"Added patient {patient.id}, Tree height: {tree.get_height(tree.root)}")
+    
+    print("Tree structure (in-order):")
+    print_in_order(tree.root)
+
+    print("\n2. Creating right-heavy tree for LEFT rotation:")
+    tree2 = AVLTree()
+    patients_left = [
+        Patient(10, "Patient10", False, ["Fever"]),
+        Patient(20, "Patient20", True, ["Cold"]),
+        Patient(30, "Patient30", False, ["Flu"])
+    ]
+    
+    for patient in patients_left:
+        tree2.add_patient(patient)
+        print(f"Added patient {patient.id}, Tree height: {tree2.get_height(tree2.root)}")
+    
+    print("Tree structure (in-order):")
+    print_in_order(tree2.root)
+
+    print("\n3. Testing Left-Right rotation scenario:")
+    tree3 = AVLTree()
+    patients_lr = [
+        Patient(30, "Patient30", False, ["Fever"]),
+        Patient(10, "Patient10", True, ["Cold"]),
+        Patient(20, "Patient20", False, ["Flu"])
+    ]
+    
+    for patient in patients_lr:
+        tree3.add_patient(patient)
+        print(f"Added patient {patient.id}, Tree height: {tree3.get_height(tree3.root)}")
+    
+    print("Tree structure (in-order):")
+    print_in_order(tree3.root)
+
+def print_in_order(node: AVLNode, level=0):
+    """Helper function to print tree structure"""
+    if node:
+        print_in_order(node.left, level + 1)
+        print(' ' * 4 * level + f'-> {node.patient.id} (h:{node.height})')
+        print_in_order(node.right, level + 1)
+
+def get_tree_balance_info(tree: AVLTree) -> Dict:
+    """Get detailed balance information about the tree"""
+    if not tree.root:
+        return {"balanced": True, "height": 0, "balance_factor": 0}
+    
+    def get_node_info(node):
+        if not node:
+            return {"height": 0, "balanced": True}
+        
+        left_info = get_node_info(node.left)
+        right_info = get_node_info(node.right)
+        
+        height = 1 + max(left_info["height"], right_info["height"])
+        balance_factor = left_info["height"] - right_info["height"]
+        balanced = (abs(balance_factor) <= 1 and 
+                   left_info["balanced"] and 
+                   right_info["balanced"])
+        
+        return {
+            "height": height,
+            "balanced": balanced,
+            "balance_factor": balance_factor,
+            "patient_id": node.patient.id
+        }
+    
+    return get_node_info(tree.root)
+
+def enhanced_main():
+    main()
+    
+    demonstrate_rotations()
+    
+    print("\n=== Tree Balance Analysis ===")
+    system = PersistentPatientRecordSystem()
+    test_patients = [
+        Patient(50, "Root", False, ["Test"]),
+        Patient(30, "Left", True, ["Test"]),
+        Patient(70, "Right", False, ["Test"]),
+        Patient(20, "Left-Left", True, ["Test"]),
+        Patient(40, "Left-Right", False, ["Test"])
+    ]
+    
+    for patient in test_patients:
+        system.add_patient(patient)
+    
+    balance_info = get_tree_balance_info(system.avl_tree)
+    print(f"Tree balanced: {balance_info['balanced']}")
+    print(f"Tree height: {balance_info['height']}")
+    print(f"Root balance factor: {balance_info['balance_factor']}")
+
+    print("\n=== Manual Rotation Test ===")
+    manual_tree = AVLTree()
+  
+    root_patient = Patient(40, "Root", False, ["Manual"])
+    left_patient = Patient(30, "Left", True, ["Manual"]) 
+    right_patient = Patient(50, "Right", False, ["Manual"])
+    
+    root_node = AVLNode(root_patient)
+    left_node = AVLNode(left_patient)
+    right_node = AVLNode(right_patient)
+    
+    root_node.left = left_node
+    root_node.right = right_node
+    root_node.height = 2
+    
+    manual_tree.root = root_node
+    
+    print("Before any operations:")
+    print_in_order(manual_tree.root)
+    
+
+
+if _name_ == "_main_":
+    enhanced_main()
